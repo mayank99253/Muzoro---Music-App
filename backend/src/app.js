@@ -1,11 +1,14 @@
 //create the server
 import express from "express";
 import { authrouter } from "./routes/auth.route.js";
+import cookieParser from "cookie-parser"
 
-const app = express();
+export const app = express();
 
-app.use(express.json());
+app.use(express.json()); // json help to read the data
+app.use(cookieParser()); // it use to set the cookies in client side 
 
-app.use("/api/auth" , authrouter);
+app.use("/api/auth/v1" , authrouter);
 
-export { app };
+// app.use("/api/admin" , adminRouter)
+
