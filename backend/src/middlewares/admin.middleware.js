@@ -1,11 +1,20 @@
-import { errorHandler } from "../errors/errorHandler.js";
 import jwt from "jsonwebtoken";
-import {ENV} from "../lib/env.js";
+import { errorHandler } from "../errors/errorHandler.js";
 import { userModel } from "../models/user.model.js";
+import { ENV } from "../lib/env.js";
 
-export const protectedRoute = async (req, res, next) => {
+export const adminMiddleware = (req, res, next) => {
+    // req.user data aapke standard authMiddleware se populate hokar aayega
+    if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: "Access denied. Admin resources only." });
+    }
+    next();
+};
+
+
+export const protectedAdminRoute = async (req, res, next) => {
     try {
-        const token = req.cookies.refreshToken;
+        const token = req.cookies.adminToken;
 
         if (!token) {
             return errorHandler(res, 401, "Unauthorized");
@@ -26,6 +35,7 @@ export const protectedRoute = async (req, res, next) => {
 
         next();
     } catch (error) {
+        console.error(error)
         return errorHandler(res, 500, "Internal Server Error");
     }
 };

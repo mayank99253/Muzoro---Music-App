@@ -7,23 +7,21 @@ export const generateToken = (res, userId, role) => {
             userId, role
         },
         ENV.JWT_SECRET,
-        {
-            expiresIn: "7d"
-        }
+            role === "admin" ? {expiresIn: "1d"} : {expiresIn: "7d"}
     );
 
     if (role === "admin") {
-        res.cookie("token", token, {
+        res.cookie("adminToken", token, {
             httpOnly: true,
             secure: ENV.NODE_ENV === "production",
             sameSite: "strict",
-            maxAge: 1 * 24 * 60 * 60 * 1000
+            maxAge: 1 * 24 * 60 * 60 * 1000 // 
         });
 
         return token;
     }
     
-    res.cookie("token", token, {
+    res.cookie("refreshToken", token, {
         httpOnly: true,
         secure: ENV.NODE_ENV === "production",
         sameSite: "strict",
