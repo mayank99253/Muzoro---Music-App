@@ -2,7 +2,7 @@ import { userModel } from '../models/user.model.js';
 import { artistModel } from '../models/artist.model.js';
 import { sendEmail } from '../services/sendEmail.js';
 import { errorHandler } from '../errors/errorHandler.js';
-import songModel from '../models/song.model.js';
+import {songModel} from '../models/song.model.js';
 
 export const registerArtistController = async (req, res) => {
     try {

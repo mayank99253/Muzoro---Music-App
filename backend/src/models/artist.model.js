@@ -39,6 +39,10 @@ const artistSchema = new mongoose.Schema(
         isVerified: {
             type: Boolean,
             default: false
+        },
+        isBan : {
+            type :Boolean,
+            default : false
         }
     },
     {
