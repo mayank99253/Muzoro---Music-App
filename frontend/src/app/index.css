@@ -21,3 +21,8 @@ body {
 
   border-radius: 20px;
 }
+ 
+/* Enables class-based dark mode (matches Tailwind v3's darkMode: "class").
+   Now dark: utilities apply whenever an ancestor has the .dark class —
+   exactly what useTheme.js toggles on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));

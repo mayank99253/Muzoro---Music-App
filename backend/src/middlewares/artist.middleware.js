@@ -17,6 +17,8 @@ export const artistMiddleware = async (req, res, next) => {
         // (Assuming aapke User schema me 'role' aur 'isVerifiedArtist' fields hain)
         const isArtist = req.user.role === 'artist';
         const isVerified = artist.isVerified === true; 
+        const isBan = artist.isBan === true
+        if(isBan) return errorHandler(res , 400 , "You are ban Artist from Muzoro Team")
 
         if (!isArtist || !isVerified) {
             return errorHandler(res , 403 , "Please wait 2-3 days. We are verifing your profile.")

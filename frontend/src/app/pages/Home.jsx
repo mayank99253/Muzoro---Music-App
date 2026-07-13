@@ -1,10 +1,10 @@
 import { 
-  Home, Search, Library, ListMusic, Heart, History, 
-  Settings, LogOut, Bell, Smile, Frown, Meh, 
+   Search ,  Heart , 
+    Bell, Smile, Frown, Meh, 
   Play, SkipBack, SkipForward, Shuffle, Repeat, 
   Volume2, Maximize2, MoreHorizontal, User
 } from 'lucide-react';
-import Profile from '../feature/auth/pages/Profile';
+import Profile from './Profile';
 
 export default function Homepage() {
   return (

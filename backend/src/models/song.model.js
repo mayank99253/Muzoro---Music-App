@@ -10,7 +10,7 @@ const songSchema = new mongoose.Schema(
         },
         artist: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'user', // Matches your userModel name
+            ref: 'Artist', // Matches your userModel name
             required: [true, 'An artist reference is required']
         },
         duration: {
@@ -26,13 +26,17 @@ const songSchema = new mongoose.Schema(
             type: String,
             trim: true,
             default: 'https://placeholder-image-url.com/default-cover.jpg',
-            required :[true, 'Image file URL is required']  // Fallback artwork
+            required: [true, 'Image file URL is required']  // Fallback artwork
         },
         category: {
-                type: String,
-                enum : ["sad" , "happy" , "serious"],
-                default : "happy"
-            },
+            type: String,
+            enum: ["sad", "happy", "serious"],
+            default: "happy"
+        },
+        isFreeze: {
+            type: Boolean,
+            default: false
+        }
     },
     {
         timestamps: true // Automatically adds createdAt and updatedAt fields
@@ -42,6 +46,4 @@ const songSchema = new mongoose.Schema(
 // Compounding indexes for performance optimizations (optional but recommended)
 songSchema.index({ artist: 1, createdAt: -1 });
 
-const songModel = mongoose.model('Song', songSchema);
-
-export default songModel;
+export const songModel = mongoose.model('Song', songSchema);

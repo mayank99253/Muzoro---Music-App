@@ -1,5 +1,5 @@
 import { errorHandler } from "../errors/errorHandler.js"
-import songModel from "../models/song.model.js";
+import {songModel} from "../models/song.model.js";
 import { uploadBuffertoCloudinary } from "../services/cloudinary.js";
 
 export const uploadSong = async (req, res) => {
