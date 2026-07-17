@@ -26,6 +26,9 @@ export const protectedRoute = async (req, res, next) => {
 
         next();
     } catch (error) {
+        if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
+            return errorHandler(res, 401, "Unauthorized: Invalid Token");
+       }
         return errorHandler(res, 500, "Internal Server Error");
     }
 };

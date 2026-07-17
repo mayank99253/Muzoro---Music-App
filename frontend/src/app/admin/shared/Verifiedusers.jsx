@@ -11,6 +11,7 @@ const VerifiedUsers = () => {
     handleGetApproveArtist();
   }, [handleGetApproveArtist]);
 
+
   return (
     <div className="text-black dark:text-zinc-100">
       <div className="mb-8">
@@ -32,15 +33,9 @@ const VerifiedUsers = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-black/5 dark:divide-white/5">
-            {verifiedAritist && verifiedAritist.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="px-6 py-14 text-center text-zinc-500">
-                  No verified artists found.
-                </td>
-              </tr>
-            ) : (
+            {verifiedAritist || verifiedAritist.length == 0 ? (
               verifiedAritist.map((artist, i) => (
-                <tr key={artist._id} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                <tr key={artist._id} className="hover:bg-black/2 dark:hover:bg-white/[0.03] transition-colors">
                   <td className="px-6 py-4 font-mono text-xs text-zinc-500">{String(i + 1).padStart(2, "0")}</td>
                   <td className="px-6 py-4 font-medium text-black dark:text-zinc-200">{artist.stageName}</td>
                   <td className="px-6 py-4 text-zinc-500">{artist.user?.email || "N/A"}</td>
@@ -61,6 +56,12 @@ const VerifiedUsers = () => {
                   </td>
                 </tr>
               ))
+            ):(
+               <tr>
+                <td colSpan="5" className="px-6 py-14 text-center text-zinc-500">
+                  No verified artists found.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

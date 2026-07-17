@@ -3,6 +3,7 @@ import {signupController , loginController , logoutController , getMeController 
 import { protectedRoute } from "../middlewares/auth.middleware.js";
 import { loginValidator, signupValidator } from "../validators/auth.validator.js";
 import { handleValidationErrors } from "../errors/validatorError.js";
+
 export const authrouter = express.Router();
 
 // @route   POST api/auth/login

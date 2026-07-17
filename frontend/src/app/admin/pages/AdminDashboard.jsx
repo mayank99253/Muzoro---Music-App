@@ -7,7 +7,7 @@ import { useTheme } from "../hook/useTheme.js";
 const AdminDashboard = () => {
   const { theme, toggleTheme } = useTheme();
 
-  
+
   // TODO: point this at whichever slice actually holds the logged-in admin's
   // own profile. Your "admin" slice currently stores artist/song data, so
   // this is likely a different slice (e.g. state.auth.admin) — swap it in.
@@ -25,7 +25,7 @@ const AdminDashboard = () => {
             <div className="w-7 h-7 flex items-center justify-center font-mono text-[11px] border border-black/10 dark:border-white/10 text-zinc-500">
               {adminName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-sm font-medium text-black dark:text-zinc-200">Welcome Sir , Happy to See you  {adminName}</span>
+            <span className="text-sm font-medium text-black dark:text-zinc-200">Welcome back, Happy to See you  {adminName}</span>
           </div>
 
           <button

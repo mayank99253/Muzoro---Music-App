@@ -43,7 +43,11 @@ const artistSchema = new mongoose.Schema(
         isBan : {
             type :Boolean,
             default : false
-        }
+        },
+         monthlyListeners: {
+            type: Number,
+            default: 0
+       }
     },
     {
         timestamps: true // Automatically tracks profile creation and updates

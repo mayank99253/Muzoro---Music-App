@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast"
 import { useSelector } from 'react-redux';
 import { useAuth } from './feature/auth/hook/useAuth.js';
 import { useAdmin } from './admin/hook/useAdmin.js';
+import PageLoader from "../app/components/loader/PageLoader"
 
 const App = () => {
   const { user, loading } = useSelector((state) => state.auth);
@@ -28,11 +29,7 @@ const App = () => {
   }, [user, handleGetme, isAdminRoute]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <PageLoader />
   }
   return (
     <main>
