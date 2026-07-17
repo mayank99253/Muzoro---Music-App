@@ -18,10 +18,10 @@ export const artistMiddleware = async (req, res, next) => {
         const isArtist = req.user.role === 'artist';
         const isVerified = artist.isVerified === true; 
         const isBan = artist.isBan === true
-        if(isBan) return errorHandler(res , 400 , "You are ban Artist from Muzoro Team")
+        if(isBan) return errorHandler(res , 403 , "You have been banned from the Muzoro platform")
 
         if (!isArtist || !isVerified) {
-            return errorHandler(res , 403 , "Please wait 2-3 days. We are verifing your profile.")
+            return errorHandler(res , 403 , "Please wait 2-3 days. We are verifying your profile.")
         }
 
         req.artist = artist

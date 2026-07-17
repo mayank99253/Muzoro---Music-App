@@ -1,4 +1,4 @@
-import express from "express"
+import express from "express";
 import {
     adminLoginController,
     adminLogoutController,
@@ -16,29 +16,26 @@ import { adminMiddleware, protectedAdminRoute } from "../middlewares/admin.middl
 
 export const adminRouter = express.Router();
 
+// 1. PUBLIC ROUTES (No authentication required)
 adminRouter.post("/admin-login", adminLoginController);
 
-adminRouter.get("/get-me", protectedAdminRoute, adminMiddleware, (req, res) => { res.json(req.user) });
+// 2. APPLY MIDDLEWARE GLOBALLY (Everything below this line will be protected)
+adminRouter.use(protectedAdminRoute, adminMiddleware);
 
+// 3. PROTECTED ROUTES
 adminRouter.post("/admin-logout", adminLogoutController);
 
-adminRouter.patch("/artist/approve/:id", protectedAdminRoute, adminMiddleware, approveArtist);
+adminRouter.get("/get-me", (req, res) => { res.json(req.user) });
 
-adminRouter.delete("/artist/reject/:id", protectedAdminRoute, adminMiddleware, rejectArtist);
-// Testing Done
+adminRouter.patch("/artist/approve/:id", approveArtist);
+adminRouter.delete("/artist/reject/:id", rejectArtist);
 
-adminRouter.get("/artists/pending", protectedAdminRoute, adminMiddleware, getPendingArtists);
+adminRouter.get("/artists/pending", getPendingArtists);
+adminRouter.get("/artists/verified", getVerifiedArtists);
 
-adminRouter.get("/artists/verified", protectedAdminRoute, adminMiddleware, getVerifiedArtists);
+adminRouter.get("/all-songs", getAllSongs);
+adminRouter.delete("/songs/:id", deleteSong);
 
-adminRouter.get("/all-songs", protectedAdminRoute, adminMiddleware, getAllSongs);
-// Route: DELETE /api/v1/songs/:id
-adminRouter.delete("/songs/:id", protectedAdminRoute, adminMiddleware, deleteSong);
-
-adminRouter.patch('/ban/artist/:id', protectedAdminRoute, adminMiddleware, banArtist);
-
-adminRouter.patch('/unban/artist/:id', protectedAdminRoute , adminMiddleware, unbanArtist);
-
-adminRouter.get('/get-ban-artists', protectedAdminRoute , adminMiddleware, getBanArtist);
-
-
+adminRouter.patch('/ban/artist/:id', banArtist);
+adminRouter.patch('/unban/artist/:id', unbanArtist);
+adminRouter.get('/get-ban-artists', getBanArtist);

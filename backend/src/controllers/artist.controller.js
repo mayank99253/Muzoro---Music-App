@@ -3,6 +3,7 @@ import { artistModel } from '../models/artist.model.js';
 import { sendEmail } from '../services/sendEmail.js';
 import { errorHandler } from '../errors/errorHandler.js';
 import {songModel} from '../models/song.model.js';
+import {uploadBuffertoCloudinary} from "../services/cloudinary.js"
 
 export const registerArtistController = async (req, res) => {
     try {
@@ -68,5 +69,38 @@ export const getMySongController  = async(req , res) =>{
     } catch (error) {
         console.error(error);
         return errorHandler(res , 500 , "Internal Server Error")
+    }
+}
+export const uploadSong = async (req, res) => {
+    try {
+        const { title, duration, category } = req.body;
+        const imageFile = req.files?.image[0]?.buffer;
+        const audioFile = req.files?.audio[0]?.buffer;
+        const artistId = req.artist._id
+
+        if (!title || !duration || !category || !imageFile || !audioFile) return errorHandler(res, 400, "All fields are required")
+
+        // 2. Upload both files concurrently using Promise.all
+        const [audio,image] = await Promise.all([
+            uploadBuffertoCloudinary(audioFile, 'video', 'songs/audio'),
+            uploadBuffertoCloudinary(imageFile, 'image', 'songs/covers')
+        ]);
+
+        const songCreate = await songModel.create({
+            songTitle: title,
+            artist: artistId,
+            duration,
+            audioUrl: audio.secure_url,
+            coverImageUrl: image.secure_url,
+            category
+        })
+        // 3. Return the exact URLs to save to your database
+        return res.status(200).json({
+            message: "Song Upload successfully",
+            songData: songCreate
+        });
+    } catch (error) {
+        console.error(error)
+        return errorHandler(res, 500, "Internal Server Error")
     }
 }

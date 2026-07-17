@@ -25,7 +25,7 @@ export const useAdmin = () => {
             dispatch(setError(null));
             dispatch(setLoading(true));
             const data = await adminGetAdmin();
-            dispatch(setUser(data.user))
+            dispatch(setUser(data))
         } catch (error) {
             dispatch(setError(error.response?.data?.message || "Admin Error"));
         } finally {

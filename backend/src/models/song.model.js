@@ -36,6 +36,10 @@ const songSchema = new mongoose.Schema(
         isFreeze: {
             type: Boolean,
             default: false
+        },
+        likesCount :{
+            type : Number,
+            default : 0
         }
     },
     {
