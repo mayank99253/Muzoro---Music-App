@@ -74,8 +74,8 @@ export const getMySongController  = async(req , res) =>{
 export const uploadSong = async (req, res) => {
     try {
         const { title, duration, category } = req.body;
-        const imageFile = req.files?.image[0]?.buffer;
-        const audioFile = req.files?.audio[0]?.buffer;
+        const imageFile = req.files?.image?.[0]?.buffer;
+        const audioFile = req.files?.audio?.[0]?.buffer;
         const artistId = req.artist._id
 
         if (!title || !duration || !category || !imageFile || !audioFile) return errorHandler(res, 400, "All fields are required")
@@ -102,5 +102,15 @@ export const uploadSong = async (req, res) => {
     } catch (error) {
         console.error(error)
         return errorHandler(res, 500, "Internal Server Error")
+    }
+}
+export const getArtist = async (req,res) => {
+    try {
+        const artist = req.artist
+
+        return res.status(200).json(artist)
+    } catch (error) {
+        console.error(error);
+        return errorHandler(res , 500 , "Internal Server Error");
     }
 }

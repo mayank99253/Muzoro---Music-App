@@ -5,7 +5,6 @@ export const adminLogin = async({email , password})=>{
         const res = await AxiosInstance.post("/admin/v1/admin-login" , {email , password});
         return res.data
     } catch (error) {
-        console.error("Login Error : " ,error)
         throw error
     }
 }

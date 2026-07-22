@@ -3,11 +3,11 @@ import { LayoutDashboard, UserCheck, Clock, LogOut, Headphones, Ban, UserPlus } 
 import { useAdmin } from "../hook/useAdmin.js";
 
 const navItems = [
-  { to: "/admin-dashboard", label: "Home", icon: LayoutDashboard, end: true },
-  { to: "/admin-dashboard/verified-users", label: "Verified Users", icon: UserCheck },
-  { to: "/admin-dashboard/pending-users", label: "Pending Users", icon: Clock },
-  { to: "/admin-dashboard/ban-users", label: "Ban Users", icon: Ban },
-  { to: "/admin-dashboard/register-admin", label: "Add Admin", icon: UserPlus },
+  { to: "/", label: "Home", icon: LayoutDashboard, end: true },
+  { to: "/verified-users", label: "Verified Users", icon: UserCheck },
+  { to: "/pending-users", label: "Pending Users", icon: Clock },
+  { to: "/ban-users", label: "Ban Users", icon: Ban },
+  { to: "/register-admin", label: "Add Admin", icon: UserPlus },
 ];
 
 const AdminSidebar = () => {

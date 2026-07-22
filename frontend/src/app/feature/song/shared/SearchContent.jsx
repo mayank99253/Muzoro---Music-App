@@ -80,8 +80,9 @@ export default function SearchContent() {
                     <td className="py-3 px-5 text-xs text-slate-500">
                       <span className="group-hover:hidden">{String(idx + 1).padStart(2, '0')}</span>
                       <button
-                        onClick={() => handlePlaySong(song , filtered)}
-                        className="hidden group-hover:inline-flex text-purple-400"
+                        onClick={() => handlePlaySong(song, filtered)}
+                        aria-label={`Play ${song.songTitle}`}
+                        className="inline-flex text-purple-400"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                       </button>
@@ -168,8 +169,9 @@ export default function SearchContent() {
                       <td className="py-3 px-5 text-xs text-slate-500">
                         <span className="group-hover:hidden">{String(idx + 1).padStart(2, '0')}</span>
                         <button
-                          onClick={() => handlePlaySong(song , allSongs)}
-                          className="hidden group-hover:inline-flex text-purple-400"
+                          onClick={() => handlePlaySong(song, allSongs)}
+                          aria-label={`Play ${song.songTitle}`}
+                          className="inline-flex text-purple-400"
                         >
                           <Play className="w-3.5 h-3.5 fill-current" />
                         </button>
@@ -189,7 +191,8 @@ export default function SearchContent() {
             </div>
           </div>
         </>
-      )}
-    </main>
+      )
+      }
+    </main >
   );
 }

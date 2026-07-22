@@ -33,10 +33,8 @@ export default function RightSidebar() {
 
   // 2. Fetch history on mount if not loaded to know the last track
   useEffect(() => {
-    if (!history || history.length === 0) {
       handleGetHistory();
-    }
-  }, [handleGetHistory, history]);
+  }, [handleGetHistory]);
 
   // 3. Fallback logic: If no dynamic song active, target the latest item from history array
   const lastPlayedSongItem = history && history.length > 0 ? history[0]?.song : null;
@@ -45,12 +43,12 @@ export default function RightSidebar() {
   // Play/Pause control jab state change ho
   useEffect(() => {
     if (!audioRef.current || !currentSong) return;
-    if (isPlaying && activeSong) { // Only play dynamically if an active selection exists
+    if (isPlaying) { // Only play dynamically if an active selection exists
       audioRef.current.play();
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying, currentSong, activeSong]);
+  }, [isPlaying, currentSong]);
 
   // Jab naya song load ho, time reset karo
   useEffect(() => {
@@ -232,7 +230,7 @@ export default function RightSidebar() {
                 disabled={!currentSong}
                 className="bg-purple-500 text-white p-2.5 rounded-full shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-40"
               >
-                {isPlaying && activeSong ? (
+                {isPlaying ? (
                   <Pause className="w-4 h-4 fill-white" />
                 ) : (
                   <Play className="w-4 h-4 fill-white ml-0.5" />

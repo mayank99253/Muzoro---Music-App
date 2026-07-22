@@ -33,7 +33,7 @@ const VerifiedUsers = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-black/5 dark:divide-white/5">
-            {verifiedAritist || verifiedAritist.length == 0 ? (
+            {verifiedAritist?.length > 0 ? (
               verifiedAritist.map((artist, i) => (
                 <tr key={artist._id} className="hover:bg-black/2 dark:hover:bg-white/[0.03] transition-colors">
                   <td className="px-6 py-4 font-mono text-xs text-zinc-500">{String(i + 1).padStart(2, "0")}</td>

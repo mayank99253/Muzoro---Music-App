@@ -12,6 +12,7 @@ const historySchema = new mongoose.Schema({
       song: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Song",
+        required: true,
       },
       playedAt: {
         type: Date,
