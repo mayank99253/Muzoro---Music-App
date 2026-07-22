@@ -5,7 +5,7 @@ export const signupValidator = [
     body('userName')
         .trim()
         .notEmpty().withMessage('Username is required')
-        .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
+        .isLength({ min: 3 , max:24 }).withMessage('Username must be at least 3 characters long'),
 
     // 2. Email Validation
     body('email')

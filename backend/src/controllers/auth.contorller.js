@@ -1,4 +1,7 @@
 import { userModel } from '../models/user.model.js';
+import { playlistModel } from "../models/playlist.model.js"
+import { followModel } from "../models/follow.model.js"
+import { likeModel } from "../models/like.model.js"
 import { generateToken } from '../lib/token.js';
 import { errorHandler } from '../errors/errorHandler.js';
 import bcrypt from 'bcryptjs';
@@ -35,6 +38,7 @@ export const signupController = async (req, res) => {
         });
 
     } catch (error) {
+        console.error(error);
         return errorHandler(res, 500, error.message || "Internal Server Error");
     }
 };
@@ -94,7 +98,7 @@ export const getMeController = async (req, res) => {
         // 1. Fetch user details using ID attached to req.user by auth middleware
         // .select('-password') excludes the sensitive password hash from being retrieved
         const user = await userModel.findById(req.user.id)
-        
+
         if (!user) {
             return errorHandler(res, 404, "User not found");
         }
@@ -107,5 +111,42 @@ export const getMeController = async (req, res) => {
 
     } catch (error) {
         return errorHandler(res, 500, error.message || "Internal Server Error");
+    }
+};
+
+// GET /artist/my-follow-artist
+export const getMyFollowArtists = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const follows = await followModel.find({ user: userId }).populate("artist");
+        const followedArtists = follows.map((f) => f.artist);
+        res.status(200).json({ followedArtists });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch followed artists" });
+    }
+};
+
+// GET /artist/get-my-playlists
+export const getMyAllPlaylists = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const playlists = await playlistModel.find({ owner: userId });
+        res.status(200).json({ count : playlists.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch playlists" });
+    }
+};
+
+// GET /artist/my-liked-song
+export const getMyLikedSong = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const liked = await likeModel.find({ user: userId });
+        res.status(200).json({ count: liked.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch liked songs" });
     }
 };

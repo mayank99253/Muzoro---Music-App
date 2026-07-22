@@ -1,9 +1,14 @@
+import { errorHandler } from "../errors/errorHandler.js";
 import { historyModel } from "../models/history.model.js";
+import { songModel } from "../models/song.model.js";
 
 export const addToHistory = async(req, res)=>{
   try {
     const { songId } = req.params;
     const userId = req.user._id;
+
+    const song = await songModel.findById(songId);
+    if(!song) return errorHandler(res , 404 , "Song not found")
 
     const history = await historyModel.findOneAndUpdate(
       { user: userId },

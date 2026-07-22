@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+body {
+  background: #000;
+  color: aliceblue;
+}
+
+.card {
+  background: rgba(10,15,30,0.6);
+  backdrop-filter: blur(30px);
+
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.card1 {
+  background: rgba(99, 99, 99, 0.108);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  border-radius: 20px;
+}
+ 
+/* Enables class-based dark mode (matches Tailwind v3's darkMode: "class").
+   Now dark: utilities apply whenever an ancestor has the .dark class —
+   exactly what useTheme.js toggles on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));

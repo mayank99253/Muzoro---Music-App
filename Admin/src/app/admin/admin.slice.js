@@ -6,6 +6,7 @@ const adminSlice = createSlice({
         admin: null,
         loading : false,
         error : null,
+        checkAuth :false,
 
         pendingArtist : [],
         verifiedAritist : [],
@@ -16,7 +17,8 @@ const adminSlice = createSlice({
     },
     reducers : {
         setUser : (state , action)=>{
-            state.admin=  action.payload
+            state.admin=  action.payload;
+            state.checkAuth = true
         },
         setLoading : (state , action)=>{
             state.loading=  action.payload

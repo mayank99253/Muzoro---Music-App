@@ -17,5 +17,6 @@ export const sendEmail = async (to, subject, text, html) => {
         console.log(`Email sent successfully to ${to}`);
     } catch (error) {
         console.error("SendGrid Email Error:", error.response?.body || error.message);
+        throw error;
     }
 };

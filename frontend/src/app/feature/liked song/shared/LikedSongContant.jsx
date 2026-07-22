@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Play, Heart, PlusCircle, Music, ChevronDown, ListMusic, Plus, CircleMinus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { playSong } from '../../song/song.slice.js'; // Retained from your architecture
+import { playSong } from "../../song/song.slice.js"; // Retained from your architecture
+import LikedSongLoader from "../../../components/loader/LikedSongLoader.jsx"
 import { useLikedSong } from '../hook/useLikedSong.js';
+
 
 // Small reusable header used by Liked Songs / Playlists section shells
 function SectionHeader({ icon, title, count, isOpen, onToggle, accent = "purple" }) {
@@ -77,7 +79,7 @@ function SongRow({ title, artist, onPlay, onRemove, removeIcon }) {
 
 export default function LikedSongContent() {
   const { handleGetLikedSong, handleCreatePlaylist, handleGetPlaylists , handleAddRemoveToPlaylist ,handleLikeSong , handleUnlikeSong } = useLikedSong();
-  const { likedSong : likedSongList, playlist } = useSelector((state) => state.likedSong);
+  const { likedSong : likedSongList, playlist , loading } = useSelector((state) => state.likedSong);
   const { currentSong } = useSelector((state) => state.song);
   const dispatch = useDispatch();
 
@@ -144,6 +146,8 @@ export default function LikedSongContent() {
     await handleCreatePlaylist({ name: playlistName.trim() });
     setPlaylistName('');
     setIsCreateOpen(false);
+
+    if(loading) return <LikedSongLoader />
   };
 
   return (

@@ -6,7 +6,6 @@ export const register = async ({ userName, email, password }) => {
         const res = await AxiosInstance.post("/auth/v1/signup", { userName, email, password });
         return res.data;
     } catch (error) {
-        console.error("Registration error:", error);
         throw error; // Rethrow so the calling component can handle the error
     }
 };
@@ -17,7 +16,6 @@ export const login = async ({ email, password }) => {
         const res = await AxiosInstance.post("/auth/v1/login", { email, password });
         return res.data;
     } catch (error) {
-        console.error("Login error:", error);
         throw error; 
     }
 };

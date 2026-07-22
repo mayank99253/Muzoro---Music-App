@@ -46,10 +46,7 @@ export const getAllSongs = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Something went wrong while fetching songs.",
-            error: error.message
-        });
+       console.error(error);
+      return errorHandler(res, 500, "Internal Server Error");
     }
 };

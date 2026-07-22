@@ -41,13 +41,13 @@ const groupByDate = (historyItems) => {
 export default function HistoryContent() {
   const dispatch = useDispatch();
   const { handleGetHistory } = useHistory();
-  const { history , loading } = useSelector((state) => state.history);
+  const { history, loading } = useSelector((state) => state.history);
 
   useEffect(() => {
     handleGetHistory();
   }, [handleGetHistory]);
 
-  if(loading) return <HistoryLoader />
+  if (loading) return <HistoryLoader />
 
   const handlePlaySong = (song) => {
     const songsOnly = history.map((h) => h.song);

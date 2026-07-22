@@ -25,29 +25,29 @@ const artistSchema = new mongoose.Schema(
             default: 'https://placeholder-image-url.com/default-banner.jpg'
         },
         socialLinks: {
-            instagram: { 
-                type: String, 
-                trim: true  , 
+            instagram: {
+                type: String,
+                trim: true,
                 //required: [true, 'Instagram page link is required'],
             },
-            youtube: { 
-                type: String, 
-                trim: true  , 
+            youtube: {
+                type: String,
+                trim: true,
                 //required: [true, 'Youtube channel link is required'],
-             },
+            },
         },
         isVerified: {
             type: Boolean,
             default: false
         },
-        isBan : {
-            type :Boolean,
-            default : false
+        isBan: {
+            type: Boolean,
+            default: false
         },
-         monthlyListeners: {
+        followersCount: {
             type: Number,
             default: 0
-       }
+        }
     },
     {
         timestamps: true // Automatically tracks profile creation and updates

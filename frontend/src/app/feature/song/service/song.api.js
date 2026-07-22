@@ -6,7 +6,7 @@ export const getLatestSongs = async () => {
         return res.data
     } catch (error) {
         console.error("Latest Song", error);
-        throw Error
+        throw error
     }
 }
 

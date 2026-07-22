@@ -1,5 +1,5 @@
 import express from "express";
-import {signupController , loginController , logoutController , getMeController } from "../controllers/auth.contorller.js";
+import {signupController , loginController , logoutController , getMeController, getMyFollowArtists, getMyAllPlaylists, getMyLikedSong } from "../controllers/auth.contorller.js";
 import { protectedRoute } from "../middlewares/auth.middleware.js";
 import { loginValidator, signupValidator } from "../validators/auth.validator.js";
 import { handleValidationErrors } from "../errors/validatorError.js";
@@ -12,4 +12,8 @@ authrouter.post("/signup", signupValidator, handleValidationErrors, signupContro
 authrouter.post("/login", loginValidator, handleValidationErrors, loginController);
 authrouter.post("/logout", logoutController);
 
-authrouter.get("/get-me" , protectedRoute ,getMeController);
+authrouter.use(protectedRoute)
+authrouter.get("/get-me"  ,getMeController);
+authrouter.get("/my-follow-artist" ,  getMyFollowArtists);
+authrouter.get("/get-my-playlists" ,  getMyAllPlaylists);
+authrouter.get("/my-liked-song" ,  getMyLikedSong);

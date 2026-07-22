@@ -15,7 +15,8 @@ const songSchema = new mongoose.Schema(
         },
         duration: {
             type: Number, // Duration in seconds (e.g., 180 for 3 minutes)
-            required: [true, 'Song duration is required']
+            required: [true, 'Song duration is required'],
+            min: [1, 'Song duration must be at least one second'],
         },
         audioUrl: {
             type: String,
@@ -30,16 +31,16 @@ const songSchema = new mongoose.Schema(
         },
         category: {
             type: String,
-            enum: ["sad", "happy", "serious"],
+            enum: ['hip-hop', 'pop', 'rock', 'r&b', 'lo-fi', 'electronic', 'jazz', 'classical', 'indie', 'happy' , "love", "sad"],
             default: "happy"
         },
         isFreeze: {
             type: Boolean,
             default: false
         },
-        likesCount :{
-            type : Number,
-            default : 0
+        likesCount: {
+            type: Number,
+            default: 0
         }
     },
     {

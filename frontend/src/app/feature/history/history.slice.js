@@ -1,18 +1,18 @@
-import {createSlice} from "@reduxjs/toolkit"
+import { createSlice } from "@reduxjs/toolkit"
 
 const historySlice = createSlice({
-    name : "history",
-    initialState : {
+    name: "history",
+    initialState: {
         history: [],
-        error : null,
-        loading : false
+        error: null,
+        loading: false
     },
-    reducers : {
-         setLoading: (state, action) => { state.loading = action.payload },
+    reducers: {
+        setLoading: (state, action) => { state.loading = action.payload },
         setError: (state, action) => { state.error = action.payload },
         setHistory: (state, action) => { state.history = action.payload },
     }
 });
 
-export const {setLoading , setHistory , setError} = historySlice.actions
+export const { setLoading, setHistory, setError } = historySlice.actions
 export default historySlice.reducer

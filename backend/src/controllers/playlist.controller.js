@@ -1,7 +1,8 @@
 // controllers/playlist.controller.js
 import { playlistModel } from "../models/playlist.model.js";
-import { playlistSongModel } from "../models/playlistSong.model.js";
+import { playlistSongModel } from "../models/playlistsong.model.js";
 import { errorHandler } from "../errors/errorHandler.js";
+import { songModel } from "../models/song.model.js";
 
 export const createPlaylist = async (req, res) => {
   try {
@@ -29,6 +30,9 @@ export const addSongToPlaylist = async (req, res) => {
   try {
     const { playlistId, songId } = req.params;
     const userId = req.user._id;
+
+    const song = await songModel.findOne(songId);
+    if(!song) return errorHandler(res , 404 , "Song not found")
 
     // Ownership check — apni hi playlist me song add kar sakta hai
     const playlist = await playlistModel.findById(playlistId);

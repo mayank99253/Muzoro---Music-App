@@ -1,10 +1,31 @@
 import React, { useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import { User, Mail, Heart, Mic, Music, CloudUpload, Radio, Edit2, Lock, EyeOff, CheckCircle } from 'lucide-react';
+import {Link} from "react-router-dom"
+import { useDispatch, useSelector } from 'react-redux';
+import { User, Mail, Heart, Mic, Music, CloudUpload, Radio, Edit2, Lock, EyeOff, CheckCircle, Pause, Play, LogOut } from 'lucide-react';
+import { useProfile } from '../hook/useProfile.js';
+import { useEffect } from 'react';
+import { playSong, setIsPlaying } from '../../song/song.slice.js';
+import { useAuth } from '../../auth/hook/useAuth.js';
 
 export default function Profile() {
-  // Pull real initial user data from Redux auth state
   const { user } = useSelector((state) => state.auth);
+  const {handleLogout} = useAuth()
+  const { followedArtists, createdPlaylists, likedSongs, artist, artistSongs } = useSelector((state) => state.profile);
+  const { handleGetMyFollowArtists, handleGetMyPlaylists, handleGetMyLikedSongs, handleGetArtist, handleGetArtistSongs } = useProfile()
+  const { currentSong, isPlaying } = useSelector((state) => state.song);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    handleGetMyFollowArtists()
+    handleGetMyPlaylists()
+    handleGetMyLikedSongs()
+    handleGetArtist()
+    handleGetArtistSongs()
+  }, [handleGetMyFollowArtists, handleGetMyPlaylists, handleGetMyLikedSongs, handleGetArtist, handleGetArtistSongs])
+
+  const handlePlaySong = (song) => {
+      dispatch(playSong({ song: song, list: artistSongs }));
+    };
 
   // Core App states for UI demonstration
   const [isArtist, setIsArtist] = useState(false); // Controls regular user vs verified artist dashboard views
@@ -13,11 +34,11 @@ export default function Profile() {
 
   // User details state (initialized with Redux data or fallback defaults)
   const [profileData, setProfileData] = useState({
-    userName: user?.userName || 'Mayank',
-    email: user?.email || 'mayank@muzoro.com',
-    stageName: 'DJ Muzoro',
-    bio: 'Creating late night lo-fi vibes for sad moods.',
-    profilePic: null, // Holds objectURLs for previewing local device uploads
+    userName: user?.userName || 'Muzoro User',
+    email: user?.email || '',
+    stageName: artist?.stageName,
+    bio: artist?.bio,
+    profilePic: artist?.bannerImageUrl|| null, // Holds objectURLs for previewing local device uploads
   });
 
   // Password Validation States
@@ -44,7 +65,7 @@ export default function Profile() {
   // Profile Save handler
   const handleSaveProfile = (e) => {
     e.preventDefault();
-    
+
     // Validate passwords only if user fills out any password field
     if (passwords.oldPassword || passwords.newPassword || passwords.confirmPassword) {
       if (passwords.newPassword !== passwords.confirmPassword) {
@@ -73,12 +94,12 @@ export default function Profile() {
 
   return (
     <main className="flex-1 bg-[#0a0f24] border border-purple-900/40 rounded-2xl p-6 overflow-y-auto h-full text-slate-300 custom-scrollbar flex flex-col gap-6">
-      
+
       {/* =========================================================
           SECTION 1: HERO DASHBOARD HEADER (DYNAMICS BASED ON ROLE)
          ========================================================= */}
       <div className="bg-[#0f1636] border border-purple-900/30 rounded-2xl p-6 shadow-inner flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        
+
         <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 w-full md:w-auto">
           {/* Dynamic Profile Pic (Local upload preview or default icon) */}
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-indigo-900 flex items-center justify-center border border-purple-400/40 shadow-lg overflow-hidden shrink-0">
@@ -91,7 +112,7 @@ export default function Profile() {
 
           <div className="space-y-1 min-w-0">
             {/* Condition A: If Artist, show username, stageName, profilePic, bio, hide become artist */}
-            {isArtist ? (
+            {artist?.isVerified ? (
               <>
                 <div className="flex items-center gap-2 justify-center sm:justify-start">
                   <h1 className="text-xl font-bold text-white truncate">{profileData.userName.toUpperCase()}</h1>
@@ -111,6 +132,7 @@ export default function Profile() {
                 </p>
               </>
             )}
+            <button className='mt-2' onClick={handleLogout} ><LogOut size={18} /></button>
           </div>
         </div>
 
@@ -119,18 +141,17 @@ export default function Profile() {
           {/* Edit Details Toggle Switch Button */}
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider border transition-all flex items-center justify-center gap-2 ${
-              isEditing 
-                ? 'bg-purple-950/40 border-purple-500 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.1)]' 
-                : 'bg-[#070b1e] border-purple-900/60 hover:bg-purple-900/20 text-slate-300'
-            }`}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider border transition-all flex items-center justify-center gap-2 ${isEditing
+              ? 'bg-purple-950/40 border-purple-500 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.1)]'
+              : 'bg-[#070b1e] border-purple-900/60 hover:bg-purple-900/20 text-slate-300'
+              }`}
           >
             <Edit2 className="w-3.5 h-3.5" />
             {isEditing ? 'Cancel Edit' : 'Edit Details'}
           </button>
 
           {/* Render Become Artist button ONLY if the user is a normal user */}
-          {!isArtist && (
+          {!artist?.isVerified && (
             <button
               onClick={() => setShowArtistForm(!showArtistForm)}
               className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
@@ -141,11 +162,12 @@ export default function Profile() {
           )}
 
           {/* Artist exclusive action controls */}
-          {isArtist && (
-            <button className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+          {artist?.isVerified && (
+            <Link to={"/upload-song"} className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
               <CloudUpload className="w-3.5 h-3.5" />
-              Upload a Song
-            </button>
+              Upload Song
+            </Link>
+
           )}
         </div>
       </div>
@@ -159,7 +181,7 @@ export default function Profile() {
             <Edit2 className="w-4 h-4 text-purple-400" /> Account Modification Panel
           </h2>
           <form onSubmit={handleSaveProfile} className="flex flex-col gap-4">
-            
+
             {/* Core Basic Settings */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -199,12 +221,12 @@ export default function Profile() {
                   </div>
                   <div>
                     <label className="text-[10px] uppercase font-bold text-purple-400 tracking-wider block mb-1.5">Profile Picture</label>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      ref={editPicInputRef} 
-                      className="hidden" 
-                      onChange={handleImageUpload} 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={editPicInputRef}
+                      className="hidden"
+                      onChange={handleImageUpload}
                     />
                     <button
                       type="button"
@@ -255,7 +277,7 @@ export default function Profile() {
                   onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
                 />
               </div>
-              
+
               {/* Active client error popup box */}
               {passwordError && (
                 <p className="text-[11px] text-red-400 mt-2 flex items-center gap-1 font-medium">
@@ -297,12 +319,12 @@ export default function Profile() {
               </div>
               <div>
                 <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1.5">Artist Display Cover</label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  ref={artistPicInputRef} 
-                  className="hidden" 
-                  onChange={handleImageUpload} 
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={artistPicInputRef}
+                  className="hidden"
+                  onChange={handleImageUpload}
                 />
                 <button
                   type="button"
@@ -334,17 +356,67 @@ export default function Profile() {
         </div>
       )}
 
+      {/* Songs of the Artist */}
+      <div className="flex flex-col gap-2 mt-2">
+        <h3 className="text-sm font-semibold text-white px-1">Songs</h3>
+        {artistSongs && artistSongs.length > 0 ? (
+          artistSongs.map((song) => {
+            // Moved inside the loop so 'song' is properly defined for each row
+            const isThisSongPlaying = isPlaying && (currentSong?._id === song._id);
+
+            return (
+              <div
+                key={song._id}
+                className="flex items-center justify-between bg-[#0f1636] border border-purple-950/60 rounded-xl px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-950/50 text-purple-400 rounded-lg">
+                    <Music className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-white">{song.songTitle}</p>
+                    <p className="text-xs text-slate-400">{song.likesCount} like</p>
+                  </div>
+                </div>
+
+                {/* Play Button */}
+                <button
+                  onClick={() => {
+                    if (currentSong?._id === song._id) {
+                      dispatch(setIsPlaying(!isPlaying));
+                    } else {
+                      handlePlaySong(song);
+                    }
+                  }}
+                  className="bg-purple-900/40 text-purple-400 p-2 rounded-full hover:bg-purple-500 hover:text-white transition-all shrink-0"
+                  title="Play Song"
+                >
+                  {isThisSongPlaying ? (
+                    <Pause className="w-3.5 h-3.5 fill-current" />
+                  ) : (
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                  )}
+                </button>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-xs text-slate-500 p-4 text-center">No songs available for this artist.</p>
+        )}
+      </div>
+
       {/* =========================================================
           SECTION 4: STANDARD LISTENING ANALYTICS INFO 
          ========================================================= */}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-[#0f1636] border border-purple-950/60 rounded-xl p-4 flex flex-col gap-3">
           <h2 className="text-xs font-bold text-white tracking-wide uppercase">Listening Metrics</h2>
           <div className="flex flex-col gap-2">
             {[
-              { label: 'Minutes Listened', value: '1,420 mins' },
-              { label: 'Playlists Created', value: '12' },
-              { label: 'Favorite Genre', value: 'Lo-Fi Chill' },
+              { label: 'Liked Songs', value: likedSongs },
+              { label: 'Playlists Created', value: createdPlaylists },
+              { label: 'Current Mood', value: 'Happy' },
             ].map((stat, idx) => (
               <div key={idx} className="flex justify-between items-center py-2 border-b border-purple-950/40 last:border-0">
                 <span className="text-xs text-slate-400">{stat.label}</span>
@@ -359,13 +431,10 @@ export default function Profile() {
             <Heart className="w-3.5 h-3.5 text-purple-400 fill-purple-400/20" /> Favorite Artists
           </h2>
           <div className="flex flex-col gap-2">
-            {[
-              { name: 'Kendrick Lamar', genre: 'Hip-Hop' },
-              { name: 'The Weeknd', genre: 'R&B / Pop' },
-            ].map((artist, idx) => (
-              <div key={idx} className="flex justify-between items-center bg-[#070b1e] border border-purple-950/30 rounded-lg p-2.5">
-                <span className="text-xs font-medium text-white">{artist.name}</span>
-                <span className="text-[10px] text-slate-400 bg-purple-950/50 px-2 py-0.5 rounded-full border border-purple-900/40">{artist.genre}</span>
+            {followedArtists.map((artist, idx) => (
+              <div key={idx} className="h-fit flex justify-between items-center bg-[#070b1e] border border-purple-950/30 rounded-lg p-2.5">
+                <span className="text-xs font-medium text-white">{artist.stageName}</span>
+                <span className="text-[10px] text-slate-400 bg-purple-950/50 px-2 py-0.5 rounded-full border border-purple-900/40">{artist.followersCount} follower</span>
               </div>
             ))}
           </div>

@@ -13,10 +13,13 @@ export function useAuth (){
             dispatch(setError(null))
             dispatch(setLoading(true));
             const data = await register({userName , email , password });
+            await handleGetme()
             toast.success("Register Successfully");
+            return data
         } catch (error) {
             toast.error("Registration Error")
          dispatch(setError(error.response?.data?.message || "Registeration Error"))
+         return null
         }finally{
             dispatch(setLoading(false))
         }
@@ -27,10 +30,13 @@ export function useAuth (){
             dispatch(setLoading(true));
             const data = await login({email , password });
             dispatch(setUser(data.user))
+            await handleGetme()
             toast.success("Login Successfully");
+            return data
         } catch (error) {
             toast.error("Login Error")
          dispatch(setError(error.response?.data?.message || "Login Error"))   
+         return null
         }finally{
             dispatch(setLoading(false))
         }
@@ -42,6 +48,7 @@ export function useAuth (){
             const data = await logout();
             dispatch(setUser(null))
             toast.success("Logout Successfully");
+            await handleGetme()
         } catch (error) {
             toast.error("Logout Failed")
          dispatch(setError(error.response?.data?.message || "Logout Error"))   
