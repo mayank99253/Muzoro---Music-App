@@ -3,10 +3,11 @@ import { Users, UserPlus, UserCheck, ArrowLeft, Music, Play, Pause } from 'lucid
 import { useFollow } from '../hook/useFollow.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { playSong, setIsPlaying } from '../../song/song.slice.js';
+import ArtistLoader from '../../../components/loader/ArtistLoader.jsx';
 
 export default function ArtistContent() {
   const { handleGetAllArtist, handleFollowArtist, handleUnfollowArtist, handleGetArtistSong } = useFollow();
-  const { allArtists, isFollow, artistSong } = useSelector((state) => state.follow);
+  const { allArtists, isFollow, artistSong ,loading } = useSelector((state) => state.follow);
   const { currentSong, isPlaying } = useSelector((state) => state.song);
   const dispatch = useDispatch();
 
@@ -32,6 +33,8 @@ export default function ArtistContent() {
   const handlePlaySong = (song) => {
     dispatch(playSong({ song: song, list: artistSong }));
   };
+
+  if(loading) return <ArtistLoader/>
 
   return (
     <main className="flex-1 bg-[#0a0f24] border border-purple-900/40 rounded-2xl p-6 overflow-y-auto h-full text-slate-300 flex flex-col gap-6">

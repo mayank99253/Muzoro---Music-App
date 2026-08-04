@@ -12,6 +12,7 @@ const profileSlice = createSlice({
         likedSongs : null,
         mood :null,
         artistSongs : [],
+        status:null,
     },
 
    reducers: {
@@ -39,6 +40,9 @@ const profileSlice = createSlice({
         setMood: (state, action) => {
             state.mood = action.payload;
         },
+        setStatus: (state, action) => {
+            state.status = action.payload;
+        },
     }
 });
 
@@ -50,7 +54,8 @@ export const {
     setMood,
     setLoading,
     setError,
-    setArtistSongs
+    setArtistSongs,
+    setStatus
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

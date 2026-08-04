@@ -12,6 +12,8 @@ const playlistSchema = new mongoose.Schema(
       ref: "user",
       required: true,
     },
+    isMoodPlaylist: { type: Boolean, default: false }, // NEW
+    mood: { type: String }, // NEW - konsa expression tha (happy/sad/etc)
   },
   { timestamps: true }
 );

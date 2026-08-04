@@ -9,6 +9,7 @@ import HomeLoader from "../../../components/loader/HomeLoader.jsx"
 export default function HomeContent() {
   const { handleGetLatestSongs, handlePopularSongs, handlePlaySong } = useSong();
   const { handleAddToHistory } = useHistory()
+  const { moodPlaylist, mood } = useSelector((state => state.expression))
 
   const { user, } = useSelector((state) => state.auth);
   const { latestSongs, popularSongs, loading } = useSelector((state) => state.song);
@@ -36,11 +37,58 @@ export default function HomeContent() {
         <div className="text-right">
           <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold block">Mood</span>
           <span className="text-sm font-semibold text-purple-300 flex items-center gap-1 justify-end">
-            Sad <span className="text-base">😔</span>
+            {mood?.toUpperCase()}<span className="text-base"></span>
           </span>
         </div>
       </div>
 
+      <div>
+        <h2 className="text-base font-bold text-white tracking-wide mb-4">Mood Playlist</h2>
+        {(!moodPlaylist || moodPlaylist.length === 0) && (
+          <div className="flex flex-col items-center justify-center text-center gap-2 py-8 px-4 text-slate-400">
+            <p className="text-sm font-medium text-white">No mood playlist yet</p>
+            <p className="text-xs text-slate-500">
+              Click the <span className="text-purple-400 font-semibold">Detect</span> button to scan your mood and generate a playlist for you.
+            </p>
+          </div>
+        )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {moodPlaylist && moodPlaylist.map((song, idx) => (
+            <div
+              onClick={() => {
+                handlePlaySong(song, latestSongs)
+                handleAddToHistory({ id: song._id })
+              }}
+              key={idx}
+              className="bg-[#0f1636] border border-purple-950/60 hover:border-purple-500/40 rounded-xl p-3 flex flex-col gap-2.5 transition-all duration-300 group hover:-translate-y-0.5 shadow-md"
+            >
+              <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-slate-900">
+                <img
+                  src={song.coverImageUrl || "/songcover.jpg"}
+                  alt={song.songTitle || "Untitled Song"}
+                  className="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                />
+                <div className="absolute inset-0 transition-opacity duration-300 flex items-center justify-center">
+                  <button
+                    // onClick={() => {
+                    //   handlePlaySong(song, moodPlaylist)
+                    //   handleAddToHistory({ id: song._id })
+                    // }}
+                    className="bg-purple-500 text-white p-2 rounded-full transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
+                    <Play className="w-4 h-4 fill-white" />
+                  </button>
+                </div>
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-xs font-semibold text-white truncate">{song.title || song.songTitle}</h3>
+                <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                  {typeof song.artist === 'string' ? song.artist : (song.artist?.stageName || 'Unknown Artist')}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       {/* Top 2nd Section: Latest Songs Grid */}
       <div>
         <h2 className="text-base font-bold text-white tracking-wide mb-4">Latest Songs</h2>
@@ -98,7 +146,7 @@ export default function HomeContent() {
                   className="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
                 />
                 <div className="absolute inset-0 transition-opacity duration-300 flex items-center justify-center">
-                  <button 
+                  <button
                     className="bg-purple-500 text-white p-2 rounded-full transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
                     <Play className="w-4 h-4 fill-white" />
                   </button>

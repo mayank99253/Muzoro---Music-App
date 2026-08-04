@@ -8,15 +8,20 @@ import {
     setLikedSongs,
     setArtist,
     setArtistSongs,
-} from '../profile.slice.js'; 
+    setStatus,
+} from '../profile.slice.js';
 import {
     getMyFollowArtists,
     getMyPlaylists,
     getMyLikedSong,
     getArtist,
     getArtistSongs,
-    uploadSong
-} from '../services/profile.api.js'; 
+    uploadSong,
+    registerArtist,
+    getMyArtistStatus,
+    updateArtist,
+    deleteSong,
+} from '../services/profile.api.js';
 import toast from 'react-hot-toast';
 
 export const useProfile = () => {
@@ -92,6 +97,22 @@ export const useProfile = () => {
         }
     }, [dispatch]);
 
+    const handleRegisterArtist = async (formData) => {
+        dispatch(setLoading(true));
+        dispatch(setError(null));
+        try {
+            const data = await registerArtist(formData);
+            toast.success("Artist Application Submitted Successfully");
+            await handleGetArtist()
+            return data;
+        } catch (error) {
+            toast.error(error.response?.message || "Failed to Register Artist");
+            console.log(error)
+            dispatch(setError(error.response?.data?.message || error.message || "Failed to Register Artist"));
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }
     const handleUploadSong = async (formData) => {
         dispatch(setLoading(true));
         dispatch(setError(null));
@@ -108,6 +129,46 @@ export const useProfile = () => {
             dispatch(setLoading(false));
         }
     }
+    const handleGetMyStatus = useCallback(async () => {
+        dispatch(setLoading(true));
+        dispatch(setError(null));
+        try {
+            const data = await getMyArtistStatus();
+            dispatch(setStatus(data))
+            return data;
+        } catch (error) {
+            dispatch(setError(error.response?.data?.message || error.message || "Failed to fetch Artist"));
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }, [dispatch]);
+
+    const handleUpdateArtist = async (formData) => {
+        dispatch(setLoading(true));
+        dispatch(setError(null));
+        try {
+            const data = await updateArtist(formData);
+            await handleGetArtist()
+            return data;
+        } catch (error) {
+            dispatch(setError(error.response?.data?.message || error.message || "Failed to Update Artist"));
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }
+    const handleDeleteSong = async ({songId}) => {
+        dispatch(setLoading(true));
+        dispatch(setError(null));
+        try {
+            const data = await deleteSong({songId});
+            await handleGetArtistSongs()
+            return data;
+        } catch (error) {
+            dispatch(setError(error.response?.data?.message || error.message || "Failed to delete song"));
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }
 
     return {
         handleGetMyFollowArtists,
@@ -115,6 +176,10 @@ export const useProfile = () => {
         handleGetMyLikedSongs,
         handleGetArtist,
         handleGetArtistSongs,
-        handleUploadSong
+        handleUploadSong,
+        handleGetMyStatus,
+        handleRegisterArtist,
+        handleUpdateArtist,
+        handleDeleteSong,
     };
 };

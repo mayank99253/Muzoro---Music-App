@@ -5,6 +5,7 @@ import historySlice from "../app/feature/history/history.slice.js"
 import likedSongSlice from "../app/feature/liked song/liked.slice.js"
 import followSlice from "../app/feature/follow/follow.slice.js"
 import profileSlice from "../app/feature/profile/profile.slice.js"
+import expressionSlice from "./feature/expression/expression.slice.js"
 
 export const store = configureStore({
     reducer  : {
@@ -13,6 +14,7 @@ export const store = configureStore({
         history : historySlice,
         likedSong : likedSongSlice,
         follow :followSlice,
-        profile : profileSlice
+        profile : profileSlice,
+        expression : expressionSlice
     }
 })

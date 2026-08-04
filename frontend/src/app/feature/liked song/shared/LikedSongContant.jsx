@@ -146,9 +146,9 @@ export default function LikedSongContent() {
     await handleCreatePlaylist({ name: playlistName.trim() });
     setPlaylistName('');
     setIsCreateOpen(false);
-
-    if(loading) return <LikedSongLoader />
   };
+  
+  if(loading) return <LikedSongLoader />
 
   return (
     <main className="flex-1 bg-[#0a0f24] rounded-2xl p-4 sm:p-6 overflow-y-auto h-full text-slate-300 flex flex-col gap-5">

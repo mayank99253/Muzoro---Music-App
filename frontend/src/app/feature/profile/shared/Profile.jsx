@@ -1,36 +1,48 @@
 import React, { useState, useRef } from 'react';
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
-import { User, Mail, Heart, Mic, Music, CloudUpload, Radio, Edit2, Lock, EyeOff, CheckCircle, Pause, Play, LogOut } from 'lucide-react';
+import { User, Mail, Heart, Mic, Music, CloudUpload, Radio, Edit2, Lock, EyeOff, CheckCircle, Pause, Play, LogOut, Clock, AlertTriangle, Trash2, X, ReceiptPoundSterling } from 'lucide-react';
 import { useProfile } from '../hook/useProfile.js';
 import { useEffect } from 'react';
 import { playSong, setIsPlaying } from '../../song/song.slice.js';
 import { useAuth } from '../../auth/hook/useAuth.js';
+import PageLoader from "../../../components/loader/PageLoader.jsx"
+import toast from 'react-hot-toast';
 
 export default function Profile() {
   const { user } = useSelector((state) => state.auth);
-  const {handleLogout} = useAuth()
-  const { followedArtists, createdPlaylists, likedSongs, artist, artistSongs } = useSelector((state) => state.profile);
-  const { handleGetMyFollowArtists, handleGetMyPlaylists, handleGetMyLikedSongs, handleGetArtist, handleGetArtistSongs } = useProfile()
+  const { handleLogout, handlePasswordChange, handleUpdateUser } = useAuth()
+  const { followedArtists, createdPlaylists, likedSongs, artist, artistSongs, loading, status } = useSelector((state) => state.profile);
+  const { handleGetMyFollowArtists,
+    handleGetMyPlaylists,
+    handleGetMyLikedSongs,
+    handleGetArtist,
+    handleGetMyStatus,
+    handleGetArtistSongs,
+    handleRegisterArtist,
+    handleUpdateArtist,
+    handleDeleteSong,
+  } = useProfile()
   const { currentSong, isPlaying } = useSelector((state) => state.song);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    handleGetArtist()
     handleGetMyFollowArtists()
     handleGetMyPlaylists()
     handleGetMyLikedSongs()
-    handleGetArtist()
     handleGetArtistSongs()
-  }, [handleGetMyFollowArtists, handleGetMyPlaylists, handleGetMyLikedSongs, handleGetArtist, handleGetArtistSongs])
+    handleGetMyStatus()
+  }, [handleGetMyFollowArtists, handleGetMyPlaylists, handleGetMyStatus, handleGetMyLikedSongs, handleGetArtist, handleGetArtistSongs]);
 
   const handlePlaySong = (song) => {
-      dispatch(playSong({ song: song, list: artistSongs }));
-    };
+    dispatch(playSong({ song: song, list: artistSongs }));
+  };
 
   // Core App states for UI demonstration
-  const [isArtist, setIsArtist] = useState(false); // Controls regular user vs verified artist dashboard views
   const [showArtistForm, setShowArtistForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // Controls Edit Details toggle button view
+  const [songDelete, setSongDelete] = useState(false);
 
   // User details state (initialized with Redux data or fallback defaults)
   const [profileData, setProfileData] = useState({
@@ -38,8 +50,19 @@ export default function Profile() {
     email: user?.email || '',
     stageName: artist?.stageName,
     bio: artist?.bio,
-    profilePic: artist?.bannerImageUrl|| null, // Holds objectURLs for previewing local device uploads
+    profilePicFile: artist?.bannerImageUrl || null, // Holds objectURLs for previewing local device uploads
+    socialLinks: {
+      instagram: "",
+      youtube: "",
+    },
   });
+
+  const handleSocialLinkChange = (platform, value) => {
+    setProfileData({
+      ...profileData,
+      socialLinks: { ...profileData.socialLinks, [platform]: value },
+    });
+  };
 
   // Password Validation States
   const [passwords, setPasswords] = useState({
@@ -58,14 +81,12 @@ export default function Profile() {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setProfileData((prev) => ({ ...prev, profilePic: imageUrl }));
+      setProfileData((prev) => ({ ...prev, profilePic: imageUrl, profilePicFile: file }));
     }
   };
 
-  // Profile Save handler
-  const handleSaveProfile = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
-
     // Validate passwords only if user fills out any password field
     if (passwords.oldPassword || passwords.newPassword || passwords.confirmPassword) {
       if (passwords.newPassword !== passwords.confirmPassword) {
@@ -77,20 +98,56 @@ export default function Profile() {
         return;
       }
     }
+    await handlePasswordChange({
+      oldPass: passwords.oldPassword,
+      newPass: passwords.newPassword,
+      confiemPass: passwords.confirmPassword
+    })
+    toast.success("Password changed successfully");
+    setPasswords({ oldPassword: "", newPassword: "", confirmPassword: "" });
+  };
 
-    setPasswordError('');
-    setIsEditing(false);
-    // Reset password fields upon successful change match
-    setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    alert('Profile updated successfully!');
+  // Profile Save handler
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+
+    if (user?.role === "user") {
+      await handleUpdateUser({ userName: profileData.userName, email: profileData.email });
+      toast.success('Profile updated successfully!');
+      setIsEditing(false);
+    } else if (user?.role === "artist") {
+
+      const formData = new FormData()
+      formData.append("username", profileData.userName)
+      formData.append("email", profileData.email)
+      formData.append("stageName", profileData.stageName)
+      formData.append("bannerImageUrl", editPicInputRef.current?.files[0])
+      formData.append("bio", profileData.bio)
+
+      await handleUpdateArtist(formData)
+      toast.success('Profile updated successfully!');
+      setIsEditing(false);
+    }
   };
 
   // Artist Registration mock submit handler
-  const handleBecomeArtistSubmit = (e) => {
+  const handleBecomeArtistSubmit = async (e) => {
     e.preventDefault();
-    setIsArtist(true);
+    const formData = new FormData();
+    formData.append("stageName", profileData.stageName);
+    formData.append("bannerImageUrl", artistPicInputRef.current?.files[0]);
+    formData.append("bio", profileData.bio);
+    formData.append("socialLinks", JSON.stringify(profileData.socialLinks));
+
+    await handleRegisterArtist(formData)
     setShowArtistForm(false);
   };
+
+  if (loading) {
+    return <main className="flex-1 bg-[#0a0f24] border border-purple-900/40 rounded-2xl p-6 overflow-y-auto h-full text-slate-300 custom-scrollbar flex flex-col gap-6">
+      <PageLoader />
+    </main>
+  }
 
   return (
     <main className="flex-1 bg-[#0a0f24] border border-purple-900/40 rounded-2xl p-6 overflow-y-auto h-full text-slate-300 custom-scrollbar flex flex-col gap-6">
@@ -151,15 +208,33 @@ export default function Profile() {
           </button>
 
           {/* Render Become Artist button ONLY if the user is a normal user */}
-          {!artist?.isVerified && (
+          {!status?.isArtist ? (
             <button
               onClick={() => setShowArtistForm(!showArtistForm)}
               className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
             >
-              <Mic className="w-3.5 h-3.5" />
+              <Mic size={24} />
               {showArtistForm ? 'Close Setup' : 'Become An Artist'}
             </button>
-          )}
+          ) : !status?.isVerified && !status?.isBan ? (
+            <button
+              disabled
+              className="px-5 py-2.5 bg-purple-600 text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md opacity-40 cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <Mic size={24} />
+              Verification Pending
+            </button>
+          ) : status?.isBan ? (
+            <div>
+              <button
+                disabled
+                className="px-5 py-2.5 bg-red-600 text-white font-bold text-xs tracking-wider uppercase rounded-xl shadow-md opacity-40 cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <Mic size={24} />
+                Banned
+              </button>
+            </div>
+          ) : null}
 
           {/* Artist exclusive action controls */}
           {artist?.isVerified && (
@@ -207,7 +282,7 @@ export default function Profile() {
             </div>
 
             {/* Conditional Fields: If user is an artist, grant access to modify bio, stagename & image file */}
-            {isArtist && (
+            {artist && (
               <div className="border-t border-purple-900/30 pt-4 mt-2 flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                   <div>
@@ -248,44 +323,6 @@ export default function Profile() {
                 </div>
               </div>
             )}
-
-            {/* Password Validation Blocks */}
-            <div className="border-t border-purple-900/30 pt-4 mt-2">
-              <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-3 flex items-center gap-1">
-                <Lock className="w-3 h-3 text-purple-400" /> Change Security Password (Optional)
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <input
-                  type="password"
-                  placeholder="Old Password"
-                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
-                  value={passwords.oldPassword}
-                  onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })}
-                />
-                <input
-                  type="password"
-                  placeholder="New Password"
-                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
-                  value={passwords.newPassword}
-                  onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm New Password"
-                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
-                  value={passwords.confirmPassword}
-                  onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-                />
-              </div>
-
-              {/* Active client error popup box */}
-              {passwordError && (
-                <p className="text-[11px] text-red-400 mt-2 flex items-center gap-1 font-medium">
-                  <EyeOff className="w-3.5 h-3.5" /> {passwordError}
-                </p>
-              )}
-            </div>
-
             <button
               type="submit"
               className="self-end px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
@@ -293,13 +330,61 @@ export default function Profile() {
               Save Details
             </button>
           </form>
+
+          {/* Password Change — separate form, separate submit */}
+          <div className="bg-[#0f1636] border border-purple-500/30 rounded-2xl p-5 shadow-lg mt-4">
+            <h2 className="text-sm font-bold text-white tracking-wider uppercase mb-4 flex items-center gap-2">
+              <Lock className="w-4 h-4 text-purple-400" /> Change Security Password
+            </h2>
+            <form onSubmit={handleChangePassword} className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <input
+                  type="password"
+                  placeholder="Old Password"
+                  required
+                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
+                  value={passwords.oldPassword}
+                  onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })}
+                />
+                <input
+                  type="password"
+                  placeholder="New Password"
+                  required
+                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
+                  value={passwords.newPassword}
+                  onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
+                />
+                <input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  required
+                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
+                  value={passwords.confirmPassword}
+                  onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
+                />
+              </div>
+
+              {passwordError && (
+                <p className="text-[11px] text-red-400 flex items-center gap-1 font-medium">
+                  <EyeOff className="w-3.5 h-3.5" /> {passwordError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="self-end px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
+              >
+                Update Password
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
       {/* =========================================================
           SECTION 3: BECOME AN ARTIST REGISTRATION FORM
          ========================================================= */}
-      {showArtistForm && !isArtist && (
+      {showArtistForm && !artist && (
         <div className="bg-[#0f1636] border border-purple-500/30 rounded-2xl p-5 shadow-lg">
           <h2 className="text-sm font-bold text-white tracking-wider uppercase mb-4 flex items-center gap-2">
             <Radio className="w-4 h-4 text-purple-400" /> Artist Application Portal
@@ -346,6 +431,28 @@ export default function Profile() {
                 onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
               />
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1.5">Instagram</label>
+                <input
+                  type="url"
+                  placeholder="https://instagram.com/yourhandle"
+                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
+                  value={profileData.socialLinks.instagram}
+                  onChange={(e) => handleSocialLinkChange("instagram", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1.5">YouTube</label>
+                <input
+                  type="url"
+                  placeholder="https://youtube.com/@yourchannel"
+                  className="w-full bg-[#070b1e] border border-purple-950/60 focus:border-purple-500/50 rounded-xl py-2.5 px-4 text-xs text-white outline-none transition-all"
+                  value={profileData.socialLinks.youtube}
+                  onChange={(e) => handleSocialLinkChange("youtube", e.target.value)}
+                />
+              </div>
+            </div>
             <button
               type="submit"
               className="self-end px-6 py-2 bg-purple-500 hover:bg-purple-400 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all"
@@ -356,8 +463,57 @@ export default function Profile() {
         </div>
       )}
 
+      {status?.isArtist && !status.isVerified && (
+        <div className="flex flex-col gap-2 mt-2">
+          <div className="flex items-center justify-between bg-[#0f1636] border border-purple-950/60 rounded-xl px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-950/50 text-purple-400 rounded-lg">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">Verification Pending</p>
+                <p className="text-xs text-slate-400">We are verifying your profile, please wait for 1-2 days.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {status && status.isBan && (
+        <div className="flex flex-col gap-2 mt-2">
+          <div className="flex items-center justify-between bg-[#0f1636] border border-purple-950/60 rounded-xl px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-950/50 text-purple-400 rounded-lg">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white mb-1">Artist Banned</p>
+                <Link to='/appeal-form' className="bg-purple-950/50 text-xs px-2 py-1 rounded-lg text-slate-400">Appeal Form</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {artist && artist.isBan && (
+        <div className="flex flex-col gap-2 mt-2">
+          <div className="flex items-center justify-between bg-[#1f0f16] border border-red-950/60 rounded-xl px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-950/50 text-red-400 rounded-lg">
+                <ShieldAlert className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">Account Banned</p>
+                <p className="text-xs text-slate-400">
+                  {artist.banReason || "Your artist account has been banned for violating platform guidelines."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Songs of the Artist */}
-      <div className="flex flex-col gap-2 mt-2">
+      {artist && !artist.isBan && artist.isVerified && <div className="flex flex-col gap-2 mt-2">
         <h3 className="text-sm font-semibold text-white px-1">Songs</h3>
         {artistSongs && artistSongs.length > 0 ? (
           artistSongs.map((song) => {
@@ -379,31 +535,42 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Play Button */}
-                <button
-                  onClick={() => {
-                    if (currentSong?._id === song._id) {
-                      dispatch(setIsPlaying(!isPlaying));
-                    } else {
-                      handlePlaySong(song);
-                    }
-                  }}
-                  className="bg-purple-900/40 text-purple-400 p-2 rounded-full hover:bg-purple-500 hover:text-white transition-all shrink-0"
-                  title="Play Song"
-                >
-                  {isThisSongPlaying ? (
-                    <Pause className="w-3.5 h-3.5 fill-current" />
-                  ) : (
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                  )}
-                </button>
+                <div className='flex gap-4'>
+                  {/* Play Button */}
+                  <button
+                    onClick={() => {
+                      if (currentSong?._id === song._id) {
+                        dispatch(setIsPlaying(!isPlaying));
+                      } else {
+                        handlePlaySong(song);
+                      }
+                    }}
+                    className="bg-purple-900/40 text-purple-400 p-2 rounded-full hover:bg-purple-500 hover:text-white transition-all shrink-0"
+                    title="Play Song"
+                  >
+                    {isThisSongPlaying ? (
+                      <Pause className="w-3.5 h-3.5 fill-current" />
+                    ) : (
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                    )}
+                  </button>
+                  {/* Delete the song */}
+                  <button
+                    onClick={() => { handleDeleteSong({songId : song._id})}}
+                    className="bg-purple-900/40 text-red-400 p-2 rounded-full hover:bg-red-500 hover:text-white transition-all shrink-0"
+                    title="Play Song"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 fill-current" />
+                  </button>
+                </div>
               </div>
             );
           })
         ) : (
           <p className="text-xs text-slate-500 p-4 text-center">No songs available for this artist.</p>
         )}
-      </div>
+      </div>}
+
 
       {/* =========================================================
           SECTION 4: STANDARD LISTENING ANALYTICS INFO 
@@ -431,30 +598,19 @@ export default function Profile() {
             <Heart className="w-3.5 h-3.5 text-purple-400 fill-purple-400/20" /> Favorite Artists
           </h2>
           <div className="flex flex-col gap-2">
-            {followedArtists.map((artist, idx) => (
+            {followedArtists.length < 0 ? followedArtists.map((artist, idx) => (
               <div key={idx} className="h-fit flex justify-between items-center bg-[#070b1e] border border-purple-950/30 rounded-lg p-2.5">
                 <span className="text-xs font-medium text-white">{artist.stageName}</span>
                 <span className="text-[10px] text-slate-400 bg-purple-950/50 px-2 py-0.5 rounded-full border border-purple-900/40">{artist.followersCount} follower</span>
               </div>
-            ))}
+            )) : <h2 className="text-xs font-bold  justify-center mt-8 text-white tracking-wide uppercase flex items-center gap-1.5">
+              No Favorite Artist
+            </h2>
+            }
           </div>
         </div>
       </div>
 
-      {/* =========================================================
-          SECTION 5: ALL SONGS CATALOGUE (ONLY FOR VERIFIED ARTISTS)
-         ========================================================= */}
-      {isArtist && (
-        <div className="mt-2">
-          <h2 className="text-base font-bold text-white tracking-wide mb-3 flex items-center gap-2">
-            <Music className="w-4 h-4 text-purple-400" /> All Songs
-          </h2>
-          <div className="bg-[#0f1636] border border-dashed border-purple-900/60 rounded-xl p-8 flex flex-col items-center justify-center text-center">
-            <p className="text-xs text-slate-400 italic">no song uploaded</p>
-            <p className="text-[10px] text-slate-500 mt-1">Use the dashboard controls to drop your tracks.</p>
-          </div>
-        </div>
-      )}
 
     </main>
   );
