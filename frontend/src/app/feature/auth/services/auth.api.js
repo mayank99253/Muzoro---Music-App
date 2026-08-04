@@ -43,3 +43,19 @@ export const getMe = async () => {
         throw error;
     }
 };
+export const changePassword = async ({ oldPass, newPass, confiemPass }) => {
+    try {
+        const res = await AxiosInstance.patch("/auth/v1/change-password", { oldPass, newPass, confiemPass });
+        return res.data;
+    } catch (error) {
+        console.error(error)
+    }
+};
+export const updateUser = async ({ userName , email }) => {
+    try {
+        const res = await AxiosInstance.patch("/auth/v1/update-user", { userName , email});
+        return res.data;
+    } catch (error) {
+        console.error(error)
+    }
+};

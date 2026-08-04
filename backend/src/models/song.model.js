@@ -31,7 +31,7 @@ const songSchema = new mongoose.Schema(
         },
         category: {
             type: String,
-            enum: ['hip-hop', 'pop', 'rock', 'r&b', 'lo-fi', 'electronic', 'jazz', 'classical', 'indie', 'happy' , "love", "sad"],
+            enum: ['hip-hop', 'pop', 'rock', 'r&b', 'lo-fi', 'electronic', 'jazz', 'classical', 'indie', 'happy' , "love", "sad", "phonk"],
             default: "happy"
         },
         isFreeze: {

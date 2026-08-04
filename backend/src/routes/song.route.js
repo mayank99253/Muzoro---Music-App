@@ -1,5 +1,6 @@
 import express from "express"
 import { 
+    generateMoodPlaylist,
     getAllSongs,
     getLatestSongs, 
     getPopularSongs, 
@@ -13,4 +14,6 @@ songRouter.use(protectedRoute);
 songRouter.get("/get-latest-songs" , getLatestSongs);
 songRouter.get("/get-popular-songs" , getPopularSongs);
 songRouter.get("/all-songs", getAllSongs);
+songRouter.post("/mood-songs", generateMoodPlaylist);
+
 

@@ -11,7 +11,6 @@ const authSlice = createSlice({
     reducers : {
         setUser : (state , action)=>{
             state.user = action.payload;
-            state.checkAuth = true
         },
         setLoading : (state , action)=>{
             state.loading = action.payload

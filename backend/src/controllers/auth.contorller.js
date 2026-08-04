@@ -150,3 +150,70 @@ export const getMyLikedSong = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch liked songs" });
     }
 };
+export const changePassword = async (req, res) => {
+    try {
+        const { oldPass, newPass, confiemPass } = req.body;
+        const userId = req.user._id;
+
+        if (!oldPass || !newPass || !confiemPass) {
+            return errorHandler(res, 400, "oldPass, newPass and confiemPass are all required");
+        }
+
+        if (newPass !== confiemPass) {
+            return errorHandler(res, 400, "New password and confirm password do not match");
+        }
+
+        if (newPass === oldPass) {
+            return errorHandler(res, 400, "New password must be different from old password");
+        }
+
+        const user = await userModel.findById(userId).select('+password');
+        if (!user) {
+            return errorHandler(res, 404, "User not found");
+        }
+
+        const isMatch = await bcrypt.compare(oldPass, user.password);
+        if (!isMatch) {
+            return errorHandler(res, 401, "Old password is incorrect");
+        }
+
+        user.password = newPass
+        await user.save();
+
+        return res.status(200).json({ message: "Password changed successfully" });
+
+    } catch (error) {
+        console.error(error);
+        return errorHandler(res, 500, "Internal Server Error");
+    }
+};
+
+export const updateCredentials = async (req, res) => {
+  try {
+    const { userName, email } = req.body;
+
+    if (!userName && !email) {
+      return errorHandler(res , 400 ,"Username or email required")
+    }
+
+    const user = await userModel.findById(req.user._id);
+
+    if (!user) {
+      return errorHandler(res , 404 ,"User not found")
+    }
+      user.userName = userName;
+      user.email = email
+    await user.save();
+
+    return res.status(200).json({
+      message: "Credentials updated successfully",
+      user: {
+        _id: user._id,
+        username: user.userName,
+      },
+    });
+  } catch (error) {
+    console.error("Update credentials error:", error);
+    return errorHandler(res, 500,  "Internal server error")
+  }
+};

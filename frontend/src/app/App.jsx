@@ -8,7 +8,7 @@ import PageLoader from "../app/components/loader/PageLoader"
 import { useProfile } from './feature/profile/hook/useProfile.js';
 
 const App = () => {
-  const { checkAuth , user} = useSelector((state) => state.auth)
+  const { loading, user} = useSelector((state) => state.auth)
   const { handleGetme } = useAuth()
   const { artist} = useSelector((state) => state.profile)
   const { handleGetArtist } = useProfile()
@@ -18,10 +18,10 @@ const App = () => {
     handleGetArtist()
   }, [handleGetme,handleGetArtist]);
 
-  if (!checkAuth) return <PageLoader />
+  if (loading) return <PageLoader />
 
   return (
-    <main className='h-[100%] w-[100%]'>
+    <main className='h-dvh w-dvw'>
       <RouterProvider router={router(user, artist)} />
       <Toaster />
     </main>

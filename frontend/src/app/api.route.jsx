@@ -9,6 +9,7 @@ import Profile from "./feature/profile/shared/Profile"
 import HistoryContent from "./feature/history/shared/HistoryContent";
 import LikedSongContant from "./feature/liked song/shared/LikedSongContant"
 import UploadSong from "./feature/profile/shared/UploadSong"
+import FaceExpressionDetector from "../app/feature/expression/pages/FaceExpressionDetector";
 
 export const router = (user,artist) => createBrowserRouter([
   {
@@ -33,5 +34,10 @@ export const router = (user,artist) => createBrowserRouter([
     ]
   },
   { path: "/upload-song",
-    element: artist ?  <UploadSong /> : <h1>Please Fill Form for the Artist</h1>},
+    element: artist ?  <UploadSong /> : <h1>Please Fill Form for the Artist</h1>
+  },
+  {
+    path:'/detect',
+    element: <FaceExpressionDetector />
+  }
 ]);

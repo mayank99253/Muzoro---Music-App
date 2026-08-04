@@ -36,6 +36,7 @@ export default function UploadSong() {
     'Love',
     'Sad',
     'Happy',
+    'phonk'
   ];
   // Handle Cover Image selection & preview URL creation
   const handleImageChange = (e) => {
@@ -316,7 +317,7 @@ export default function UploadSong() {
               className="w-full sm:w-auto px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <CloudUpload className="w-4 h-4" />
-              {loading ?  "Uploading Song..." : "Upload Song"}
+              {loading ?  "Upload Song" : "Uploading Song..."}
             </button>
         </div>
       </form>

@@ -1,11 +1,11 @@
 import axios from "axios"
 
-// baseURL: import.meta.env.VITE_API_BASE_URL,
+// "https://muzoro-music-app.onrender.com/api" for production
 
 export const AxiosInstance = axios.create({
-    baseURL : "http://localhost:3000/api",
-    withCredentials :true,
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+  baseURL: import.meta.env.VITE_API_DEPLOY_URL || import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true,
+  // headers: {
+  //   'Content-Type': 'multipart/form-data',
+  // },
 });

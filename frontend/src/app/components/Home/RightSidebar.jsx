@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { playNext, playPrevious, setIsPlaying } from '../../feature/song/song.slice';
 import { useHistory } from "../../feature/history/hooks/useHistory.js"
 import { useLikedSong } from '../../feature/liked song/hook/useLikedSong.js';
+import FaceExpressionDetector from '../../feature/expression/pages/FaceExpressionDetector.jsx';
 
 export default function RightSidebar() {
 
@@ -18,6 +19,8 @@ export default function RightSidebar() {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  // open the face detect window
+  const [showFaceDetect, setShowFaceDetect] = useState(false);
 
   // Playlist Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,7 +36,7 @@ export default function RightSidebar() {
 
   // 2. Fetch history on mount if not loaded to know the last track
   useEffect(() => {
-      handleGetHistory();
+    handleGetHistory();
   }, [handleGetHistory]);
 
   // 3. Fallback logic: If no dynamic song active, target the latest item from history array
@@ -267,13 +270,33 @@ export default function RightSidebar() {
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">Detect Face</h3>
               <h3 className="text-xs font-bold text-white uppercase tracking-wider -mt-1.5">Expression</h3>
             </div>
-            <button className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold tracking-widest uppercase rounded-xl transition-all duration-200 z-10 shadow-md shadow-purple-600/10 hover:shadow-purple-500/20 active:scale-[0.98]">
+            <button
+              onClick={() => { setShowFaceDetect(true) }}
+              className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold tracking-widest uppercase rounded-xl transition-all duration-200 z-10 shadow-md shadow-purple-600/10 hover:shadow-purple-500/20 active:scale-[0.98]">
               Detect
             </button>
           </div>
         </div>
 
       </aside>
+
+      {showFaceDetect && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-[#0f1636] border border-purple-900/60 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 text-slate-300">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white">Detect Face Expression</h3>
+              <button
+                onClick={() => setShowFaceDetect(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <FaceExpressionDetector />
+          </div>
+        </div>
+      )}
 
       {/* --- Add To Playlist Modal Overlay --- */}
       {isModalOpen && (
