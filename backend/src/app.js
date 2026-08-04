@@ -39,5 +39,7 @@ app.use("/api/history/v1", historyRouter);
 app.use("/api/playlist/v1", playlistRouter);
 app.use("/api/follow/v1", followRouter);
 
+app.get('/',(req, res)=>{ res.send("API Wokring")})
+
 // app.use("/api/admin" , adminRouter)
 
