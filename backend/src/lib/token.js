@@ -14,7 +14,7 @@ export const generateToken = (res, userId, role) => {
         res.cookie("adminToken", token, {
             httpOnly: true,
             secure: ENV.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
             maxAge: 1 * 24 * 60 * 60 * 1000 // 
         });
 
@@ -24,7 +24,7 @@ export const generateToken = (res, userId, role) => {
     res.cookie("refreshToken", token, {
         httpOnly: true,
         secure: ENV.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
