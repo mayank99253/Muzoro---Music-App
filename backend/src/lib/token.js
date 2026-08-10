@@ -13,8 +13,8 @@ export const generateToken = (res, userId, role) => {
     if (role === "admin") {
         res.cookie("adminToken", token, {
             httpOnly: true,
-            secure: ENV.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: ENV.NODE_ENV === "production" ? true : false,
+            sameSite: ENV.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1 * 24 * 60 * 60 * 1000 // 
         });
 
@@ -23,8 +23,8 @@ export const generateToken = (res, userId, role) => {
     
     res.cookie("refreshToken", token, {
         httpOnly: true,
-        secure: ENV.NODE_ENV === "production" ,
-        sameSite: "lax",
+        secure: ENV.NODE_ENV === "production" ? true : false ,
+        sameSite: ENV.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
