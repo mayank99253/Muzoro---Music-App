@@ -23,7 +23,7 @@ export const generateToken = (res, userId, role) => {
     
     res.cookie("refreshToken", token, {
         httpOnly: true,
-        secure: ENV.NODE_ENV === "production",
+        secure: ENV.NODE_ENV === "production" ,
         sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000
     });
