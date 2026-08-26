@@ -13,6 +13,7 @@ export const useExpression = () => {
         dispatch(setMoodLoading(true));
       const data = await moodPlaylist(expression);
       dispatch(setMoodSuccess({ mood: data.playlist.mood, songs: [...data.songs] }));
+      console.log(data)
       toast.success("Mood playlist ready!");
     } catch (error) {
       dispatch(setMoodError(error?.response?.data?.message || "Failed to generate playlist"));
