@@ -11,6 +11,8 @@ export default function HomeContent() {
   const { handleAddToHistory } = useHistory()
   const { moodPlaylist, mood } = useSelector((state => state.expression))
 
+  console.log(moodPlaylist)
+
   const { user, } = useSelector((state) => state.auth);
   const { latestSongs, popularSongs, loading } = useSelector((state) => state.song);
 
@@ -56,7 +58,7 @@ export default function HomeContent() {
           {moodPlaylist && moodPlaylist.map((song, idx) => (
             <div
               onClick={() => {
-                handlePlaySong(song, latestSongs)
+                handlePlaySong(song, moodPlaylist)
                 handleAddToHistory({ id: song._id })
               }}
               key={idx}
@@ -70,10 +72,6 @@ export default function HomeContent() {
                 />
                 <div className="absolute inset-0 transition-opacity duration-300 flex items-center justify-center">
                   <button
-                    // onClick={() => {
-                    //   handlePlaySong(song, moodPlaylist)
-                    //   handleAddToHistory({ id: song._id })
-                    // }}
                     className="bg-purple-500 text-white p-2 rounded-full transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
                     <Play className="w-4 h-4 fill-white" />
                   </button>
